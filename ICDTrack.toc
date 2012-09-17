@@ -1,0 +1,9 @@
+## Interface: 50001
+## Title : ICDTrack
+## Notes: Track the ICD for trinket procs
+## Author: Cal Henderson (Bees on Hyjal-US)
+## Version: 1.0
+## Dependencies: 
+## SavedVariablesPerCharacter: ICDTrackPrefs
+
+ICDTrack.lua
