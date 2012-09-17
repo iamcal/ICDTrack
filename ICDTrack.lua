@@ -54,12 +54,12 @@ function ICDTrack.OnAura(ts, auraID)
 
 		if (this < best) then
 			_G.ICDTrackPrefs.best_times[auraID] = this;
-			ICDTrack.out(string.format("Best proc for %s: %s", buff_name, this_time));
+			ICDTrack.out(string.format("|cFF00FF00Best proc for %s: %s", buff_name, this_time));
 		else
 			if (last == 0) then
 				ICDTrack.out(string.format("First proc for %s", buff_name));
 			else
-				ICDTrack.out(string.format("Slow proc for %s: %s (best was %s)", buff_name, this_time, best_time));
+				ICDTrack.out(string.format("|cFFFF9999Slow proc for %s: %s (best was %s)", buff_name, this_time, best_time));
 			end
 		end
 	end
@@ -113,7 +113,7 @@ end
 -- ############################# Formatting #############################
 
 function ICDTrack.out(str)
-	print(str);
+	print("|cFF9999FF[ICDTrack]|r "..str);
 end
 
 function ICDTrack.FormatTime(ts)
