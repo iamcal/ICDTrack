@@ -1,10 +1,9 @@
-
 ICDTrack = {};
 ICDTrack.default_options = {
 	track_buffs = {},
 	best_times = {},
+	last_times = {},
 };
-
 
 function ICDTrack.OnReady()
 
@@ -32,13 +31,101 @@ function ICDTrack.OnEvent(frame, event, ...)
 		local ts, event, hideCaster, sourceGuid = ...;
 		local us = UnitGUID("player");
 		if ((us == sourceGuid) and (event == 'SPELL_AURA_APPLIED')) then
-			local spellId = select(12, ...);
-			print("aura applied: "..spellId);
+			ICDTrack.OnAura(ts, select(12, ...));
 		end
 	end
 end
 
--- ##################################################################
+function ICDTrack.OnAura(ts, auraID)
+
+	if (_G.ICDTrackPrefs.track_buffs[auraID]) then
+		local best = _G.ICDTrackPrefs.best_times[auraID];
+		local last = _G.ICDTrackPrefs.last_times[auraID];
+
+		_G.ICDTrackPrefs.last_times[auraID] = ts;
+
+		local this = ts - last;
+
+		local this_time = ICDTrack.FormatTime(this);
+		local best_time = ICDTrack.FormatTime(best);
+		local buff_name = ICDTrack.GetBuff(auraID);
+
+		if (this < best) then
+			_G.ICDTrackPrefs.best_times[auraID] = this;
+			ICDTrack.out(string.format("Best proc for %s: %s", buff_name, this_time));
+		else
+			if (last == 0) then
+				ICDTrack.out(string.format("First proc for %s", buff_name));
+			else
+				ICDTrack.out(string.format("Slow proc for %s: %s (best was %s)", buff_name, this_time, best_time));
+			end
+		end
+	end
+end
+
+-- ############################# Start / Stop / Reset #############################
+
+function ICDTrack.TrackAura(auraID)
+
+	_G.ICDTrackPrefs.track_buffs[auraID] = 1;
+
+	if (not _G.ICDTrackPrefs.last_times[auraID]) then
+		_G.ICDTrackPrefs.last_times[auraID] = 0;
+	end
+
+	if (not _G.ICDTrackPrefs.best_times[auraID]) then
+		_G.ICDTrackPrefs.best_times[auraID] = 99999;
+	end
+
+	local best = _G.ICDTrackPrefs.best_times[auraID];
+	local best_time = ICDTrack.FormatTime(best);
+	local buff_name = ICDTrack.GetBuff(auraID);
+
+	if (best == 99999) then
+		ICDTrack.out(string.format("Starting to track %s", buff_name));
+	else
+		ICDTrack.out(string.format("Resuming tracking of %s (best time: %s)", buff_name, best_time));
+		ICDTrack.out(string.format("To reset timings: /icd reset %s", auraID));
+	end
+end
+
+function ICDTrack.StopAura(auraID)
+	_G.ICDTrackPrefs.track_buffs[auraID] = nil;
+	
+	local buff_name = ICDTrack.GetBuff(auraID);
+	ICDTrack.out(string.format("Stopped tracking of %s", buff_name));
+end
+
+function ICDTrack.ResetAura(auraID)
+
+	_G.ICDTrackPrefs.track_buffs[auraID] = 1;
+	_G.ICDTrackPrefs.last_times[auraID] = 0;
+	_G.ICDTrackPrefs.best_times[auraID] = 99999;
+
+	local buff_name = ICDTrack.GetBuff(auraID);
+
+	ICDTrack.out(string.format("Reset tracking of %s", buff_name));
+end
+
+-- ############################# Formatting #############################
+
+function ICDTrack.out(str)
+	print(str);
+end
+
+function ICDTrack.FormatTime(ts)
+	return string.format("%.1fs", ts);
+end
+
+function ICDTrack.GetBuff(auraID)
+	local name = GetSpellInfo(auraID);
+	if (not name) then
+		name = "Unknown Buff ("..auraID..")";
+	end
+	return name;
+end
+
+-- ############################# Event Frame #############################
 
 ICDTrack.EventFrame = CreateFrame("Frame");
 ICDTrack.EventFrame:Show();
