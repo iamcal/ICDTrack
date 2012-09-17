@@ -38,6 +38,8 @@ end
 
 function ICDTrack.OnAura(ts, auraID)
 
+	--print("Aura: "..auraID);
+
 	if (_G.ICDTrackPrefs.track_buffs[auraID]) then
 		local best = _G.ICDTrackPrefs.best_times[auraID];
 		local last = _G.ICDTrackPrefs.last_times[auraID];
@@ -87,6 +89,7 @@ function ICDTrack.TrackAura(auraID)
 		ICDTrack.out(string.format("Resuming tracking of %s (best time: %s)", buff_name, best_time));
 		ICDTrack.out(string.format("To reset timings: /icd reset %s", auraID));
 	end
+	ICDTrack.out(string.format("To stop tracking: /icd stop %s", auraID));
 end
 
 function ICDTrack.StopAura(auraID)
@@ -123,6 +126,31 @@ function ICDTrack.GetBuff(auraID)
 		name = "Unknown Buff ("..auraID..")";
 	end
 	return name;
+end
+
+-- ############################# Slash Commands #############################
+
+SLASH_ICDTRACK1 = '/icd';
+SLASH_ICDTRACK2 = '/icdtrack';
+
+function SlashCmdList.ICDTRACK(msg, editBox)
+
+	local command, auraID = msg:match("^%s*(%S+)%s*(%d+)$");
+
+	if (command == 'start') then
+		return ICDTrack.TrackAura(tonumber(auraID));
+	end
+	if (command == 'stop') then
+		return ICDTrack.StopAura(tonumber(auraID));
+	end
+	if (command == 'reset') then
+		return ICDTrack.ResetAura(tonumber(auraID));
+	end
+	
+	ICDTrack.out("ICDTrack Usage:");
+	print("    /icd start 123 - Start tracking buff number 123");
+	print("    /icd stop 123 - Stop tracking buff");
+	print("    /icd reset 123 - Reset best times for buff");
 end
 
 -- ############################# Event Frame #############################
