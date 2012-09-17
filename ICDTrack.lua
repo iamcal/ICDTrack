@@ -3,6 +3,7 @@ ICDTrack.default_options = {
 	track_buffs = {},
 	best_times = {},
 	last_times = {},
+	num_procs = {},
 };
 
 function ICDTrack.OnReady()
@@ -52,14 +53,22 @@ function ICDTrack.OnAura(ts, auraID)
 		local best_time = ICDTrack.FormatTime(best);
 		local buff_name = ICDTrack.GetBuff(auraID);
 
-		if (this < best) then
-			_G.ICDTrackPrefs.best_times[auraID] = this;
-			ICDTrack.out(string.format("|cFF00FF00Best proc for %s: %s", buff_name, this_time));
+		if (this > 200) then
+
+			ICDTrack.out(string.format("First proc for %s", buff_name));
 		else
-			if (last == 0) then
-				ICDTrack.out(string.format("First proc for %s", buff_name));
+			_G.ICDTrackPrefs.num_procs[auraID] = _G.ICDTrackPrefs.num_procs[auraID] + 1;
+			local num = _G.ICDTrackPrefs.num_procs[auraID];
+
+			if (this < best) then
+				_G.ICDTrackPrefs.best_times[auraID] = this;
+				ICDTrack.out(string.format("|cFF00FF00%s: %s (seen: %d)", buff_name, this_time, num));
 			else
-				ICDTrack.out(string.format("|cFFFF9999Slow proc for %s: %s (best was %s)", buff_name, this_time, best_time));
+				if (last == 0) then
+					ICDTrack.out(string.format("First proc for %s", buff_name));
+				else
+					ICDTrack.out(string.format("|cFFFF9999%s: %s (best: %s, seen: %d)", buff_name, this_time, best_time, num));
+				end
 			end
 		end
 	end
@@ -77,6 +86,10 @@ function ICDTrack.TrackAura(auraID)
 
 	if (not _G.ICDTrackPrefs.best_times[auraID]) then
 		_G.ICDTrackPrefs.best_times[auraID] = 99999;
+	end
+
+	if (not _G.ICDTrackPrefs.num_procs[auraID]) then
+		_G.ICDTrackPrefs.num_procs[auraID] = 0;
 	end
 
 	local best = _G.ICDTrackPrefs.best_times[auraID];
@@ -104,6 +117,7 @@ function ICDTrack.ResetAura(auraID)
 	_G.ICDTrackPrefs.track_buffs[auraID] = 1;
 	_G.ICDTrackPrefs.last_times[auraID] = 0;
 	_G.ICDTrackPrefs.best_times[auraID] = 99999;
+	_G.ICDTrackPrefs.num_procs[auraID] = 0;
 
 	local buff_name = ICDTrack.GetBuff(auraID);
 
