@@ -2,7 +2,7 @@
 
 This text-only addon is useful for calculating the ICD of trinket procs.
 
-To start tracking a cooldown, you'll need the spell ID fo the prod from wowhead. If you wanted to test the Heroic Starcatcher Compass, you'd find it on wowhead (http://www.wowhead.com/item=77993) and then click on the buff (http://www.wowhead.com/spell=109712). Then you start tracking it:
+To start tracking a cooldown, you'll need the spell ID for the proc from wowhead. If you wanted to test the Heroic Starcatcher Compass, you'd find it on wowhead (http://www.wowhead.com/item=77993) and then click on the buff (http://www.wowhead.com/spell=109712). Then you start tracking it:
 
     /icd start 109712
 
