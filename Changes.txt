@@ -3,3 +3,6 @@
 
 1.1
  * Upgrade to interface 50100
+
+1.2
+ * Upgrade to interface 50300
